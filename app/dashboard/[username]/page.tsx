@@ -1,27 +1,6 @@
-async function getUser(username: string) {
-  const res = await fetch(`https://api.github.com/users/${username}`, {
-    cache: "no-store",
-  });
-
-  if (!res.ok) {
-    throw new Error("Failed to fetch user");
-  }
-
-  return res.json();
-}
-
-async function getRepos(username: string) {
-  const res = await fetch(
-    `https://api.github.com/users/${username}/repos?per_page=100`,
-    { cache: "no-store" }
-  );
-
-  if (!res.ok) {
-    throw new Error("Failed to fetch repos");
-  }
-
-  return res.json();
-}
+import { getUser, getRepos } from "@/services/github";
+import RepoCard from "@/components/RepoCard";
+import StatCard from "@/components/StatCard";
 
 export default async function Dashboard({
   params,
@@ -79,23 +58,23 @@ export default async function Dashboard({
             {user.bio}
           </p>
 
-          {/* STATS */}
+          {/* STAT CARDS */}
           <div className="grid grid-cols-3 gap-4">
 
-            <div className="bg-slate-700 p-4 rounded-lg">
-              <p className="text-slate-400">Repositories</p>
-              <p className="text-2xl font-bold">{user.public_repos}</p>
-            </div>
+            <StatCard
+              label="Repositories"
+              value={user.public_repos}
+            />
 
-            <div className="bg-slate-700 p-4 rounded-lg">
-              <p className="text-slate-400">Followers</p>
-              <p className="text-2xl font-bold">{user.followers}</p>
-            </div>
+            <StatCard
+              label="Followers"
+              value={user.followers}
+            />
 
-            <div className="bg-slate-700 p-4 rounded-lg">
-              <p className="text-slate-400">Following</p>
-              <p className="text-2xl font-bold">{user.following}</p>
-            </div>
+            <StatCard
+              label="Following"
+              value={user.following}
+            />
 
           </div>
 
@@ -111,32 +90,10 @@ export default async function Dashboard({
           <div className="grid grid-cols-3 gap-6">
 
             {repos.map((repo: any) => (
-
-              <div
+              <RepoCard
                 key={repo.id}
-                className="bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-indigo-500 transition"
-              >
-
-                <h3 className="text-lg font-semibold mb-2">
-                  {repo.name}
-                </h3>
-
-                <p className="text-slate-400 text-sm mb-4">
-                  {repo.description || "No description"}
-                </p>
-
-                <div className="flex gap-4 text-sm text-slate-400">
-
-                  <span>⭐ {repo.stargazers_count}</span>
-
-                  <span>🍴 {repo.forks_count}</span>
-
-                  <span>{repo.language}</span>
-
-                </div>
-
-              </div>
-
+                repo={repo}
+              />
             ))}
 
           </div>
