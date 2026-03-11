@@ -10,11 +10,25 @@ async function getUser(username: string) {
   return res.json();
 }
 
+async function getRepos(username: string) {
+  const res = await fetch(
+    `https://api.github.com/users/${username}/repos?per_page=100`,
+    { cache: "no-store" }
+  );
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch repos");
+  }
+
+  return res.json();
+}
+
 export default async function Dashboard({ params }: { params: Promise<{ username: string }> }) {
 
   const { username } = await params;
 
   const user = await getUser(username);
+  const repos = await getRepos(username);
 
   return (
     <div className="min-h-screen bg-gray-100 p-10">
