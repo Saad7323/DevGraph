@@ -5,4 +5,4 @@ export default function StatCard({ label, value }: any) {
       <p className="text-2xl font-bold">{value}</p>
     </div>
   );
-}
+}   
