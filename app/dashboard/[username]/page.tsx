@@ -1,13 +1,13 @@
 import { getUser, getRepos } from "@/services/github";
 import RepoCard from "@/components/RepoCard";
 import StatCard from "@/components/StatCard";
+import LanguageChart from "@/components/LanguageChart";
 
 export default async function Dashboard({
   params,
 }: {
   params: Promise<{ username: string }>;
 }) {
-
   const { username } = await params;
 
   const user = await getUser(username);
@@ -19,7 +19,7 @@ export default async function Dashboard({
     0
   );
 
-  // 📊 LANGUAGE ANALYTICS
+  // 📊 LANGUAGE STATS
   const languageStats: Record<string, number> = {};
 
   repos.forEach((repo: any) => {
@@ -28,6 +28,11 @@ export default async function Dashboard({
         (languageStats[repo.language] || 0) + 1;
     }
   });
+
+  // 🔥 TOP REPOSITORIES
+  const topRepos = [...repos]
+    .sort((a: any, b: any) => b.stargazers_count - a.stargazers_count)
+    .slice(0, 5);
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex">
@@ -57,7 +62,7 @@ export default async function Dashboard({
 
       </div>
 
-      {/* MAIN DASHBOARD */}
+      {/* MAIN CONTENT */}
       <div className="flex-1 p-10">
 
         <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
@@ -75,7 +80,7 @@ export default async function Dashboard({
             {user.bio}
           </p>
 
-          {/* STATS */}
+          {/* STAT CARDS */}
           <div className="grid grid-cols-4 gap-4">
 
             <StatCard
@@ -102,35 +107,43 @@ export default async function Dashboard({
 
         </div>
 
-        {/* LANGUAGE ANALYTICS */}
-        <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 mb-10">
+        {/* ANALYTICS SECTION */}
+        <div className="grid grid-cols-2 gap-6 mb-10">
 
-          <h2 className="text-xl font-semibold mb-4">
-            Language Usage
-          </h2>
+          {/* LANGUAGE CHART */}
+          <LanguageChart data={languageStats} />
+            
+          {/* TOP REPOSITORIES */}
+          <div className="bg-slate-800 p-6 rounded-xl border border-slate-700">
 
-          <div className="space-y-2">
+            <h2 className="text-xl font-semibold mb-4">
+              Top Repositories
+            </h2>
 
-            {Object.entries(languageStats).map(([lang, count]) => (
+            <div className="space-y-3">
 
-              <div
-                key={lang}
-                className="flex justify-between text-slate-300"
-              >
+              {topRepos.map((repo: any) => (
 
-                <span>{lang}</span>
+                <div
+                  key={repo.id}
+                  className="flex justify-between text-slate-300"
+                >
 
-                <span>{count} repos</span>
+                  <span>{repo.name}</span>
 
-              </div>
+                  <span>⭐ {repo.stargazers_count}</span>
 
-            ))}
+                </div>
+
+              ))}
+
+            </div>
 
           </div>
 
         </div>
 
-        {/* REPOSITORIES */}
+        {/* REPOSITORY GRID */}
         <div>
 
           <h2 className="text-2xl font-bold mb-6">
@@ -140,10 +153,12 @@ export default async function Dashboard({
           <div className="grid grid-cols-3 gap-6">
 
             {repos.map((repo: any) => (
+
               <RepoCard
                 key={repo.id}
                 repo={repo}
               />
+
             ))}
 
           </div>
